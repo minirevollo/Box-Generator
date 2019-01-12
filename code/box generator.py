@@ -2,15 +2,16 @@
 """
 Created on Sat Dec 15 14:59:30 2018
 
-@author: Andreas Reheis
+@author: mini@revollo.de
 member of the erfindergarden
+
+SVG  Box Generator
 """
 
 from random import randint 
 from tkinter import *
 from time import *
 import os #für die Vorschau
-
 
 
 class BOX:
@@ -24,16 +25,16 @@ class BOX:
         self.tiefe = tiefe
         self.material = material
         self.zahnbreite = zahnbreite
-        #Berechnung der Reste der Breite br
-        self.bzm = round((self.breite - (2 * self.material)) / (self.zahnbreite * 2))
+        self.puffer = material * 2 #um eine zu kleine Ecke zu vermeiden
+        #Berechnung der Reste der Breite br zwischen Ecke und erstem Zahn
+        self.bzm = round((self.breite - (2 * self.material) - self.puffer) / (self.zahnbreite * 2))
         self.br = (self.breite - (self.bzm * self.zahnbreite * 2)) / 2
-        #Berechnung der Reste der Hoehe hr
-        self.hzm = round((self.hoehe - (2 * self.material)) / (self.zahnbreite * 2))
+        #Berechnung der Reste der Hoehe hr zwischen Ecke und erstem Zahn
+        self.hzm = round((self.hoehe - (2 * self.material)  - self.puffer) / (self.zahnbreite * 2))
         self.hr = (self.hoehe - (self.hzm * self.zahnbreite * 2)) / 2 
-        #Berechnung der Reste der Tiefe tr
-        self.tzm = round((self.tiefe - (2 * self.material)) / (self.zahnbreite * 2)) - 1
+        #Berechnung der Reste der Tiefe tr zwischen Ecke und erstem Zahn
+        self.tzm = round((self.tiefe - (2 * self.material)  - self.puffer) / (self.zahnbreite * 2))
         self.tr = (self.tiefe - (self.tzm * self.zahnbreite * 2)) / 2
-        print(self.tr)
         #Eigenschaften der SVG
         self.svg_breite = self.breite + self.tiefe + self.tiefe + 10
         if self.hoehe > self.breite:
@@ -49,89 +50,80 @@ class BOX:
         self.pfad_nr = 0
         self.dokumenten_ende = "</svg>"    
     
-    def schreiben_einleitung(self):
-        ###Erzeugt eine neue Datei und schreibt die Dokumenteneinstellungen.###
-        
-       self.svg = open(self.name, "w")
-       self.svg.write(self.dokumenten_anfang + "\n")
-       self.svg.write(self.dokumenten_breite + "\n")
-       self.svg.write(self.dokumenten_hoehe + "\n")
-       self.svg.write(self.dokumenten_viewbox + "\n")
-       self.svg.close()
-    
     def front_erstellen(self):
         ###Erstellt eine Front und fügt sie der Datei hinzu.###
-        x = 0
-        y = 0
+       
         ###Öffnen der Datei.###
-        self.svg = open(self.name, "a")
-        ###Position x wird auf 0 gesetzt. 
+        self.svg = open(self.name, "a")       
         self.pfad_anfang()
-        self.svg.write(" d=\"M " + str(x) + "," + str(y) + " ")
+        ###Startpunkt wird gesetzt. 
+        x = 0
+        y = 0        
+        self.schreiben_x_y(x, y)
         #### 1. Seite.
         x = x + self.br
-        self.svg.write(str(x) + "," + str(y) + " ")    
+        self.schreiben_x_y(x, y)    
         for item in range(self.bzm):
             x += (self.zahnbreite / 2)
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += (self.zahnbreite / 2)
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         x = x + self.br
-        self.svg.write(str(x) + "," + str(y) + " ")    
+        self.schreiben_x_y(x, y)    
         ### 2. Seite.
         y += self.hr 
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.hzm):
             y += self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         y += self.hr
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### 3. Seite.
         x -= self.br
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.bzm):
             x -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.zahnbreite /2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         x -= self.br
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### 4. Seite.
         y -= self.hr
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.hzm):
             y -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         y -= self.hr
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### Pfad schließen
         self.pfad_ende()
         self.svg.close()
@@ -139,76 +131,77 @@ class BOX:
     def seite_erstellen(self):
         ###Erstellt eine Seite und fügt sie der Datei hinzu.###
         
-        x = self.breite + 5 + self.material
-        y = 0
         ###Öffnen der Datei.###
         self.svg = open(self.name, "a")
         self.pfad_anfang()
-        self.svg.write(" d=\"M " + str(x) + "," + str(y) + " ")
+        ###Startpunkt wird gesetzt. 
+        x = self.breite + 5 + self.material
+        y = 0
+        self.schreiben_x_y(x, y)
         #### 1. Seite.
         x = x + self.tr - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")    
+        self.schreiben_x_y(x, y)    
         for item in range(self.tzm):
             x += (self.zahnbreite / 2)
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += (self.zahnbreite / 2)
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         x = x + self.tr - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")    
+        self.schreiben_x_y(x, y)    
         ### 2. Seite.
         y += self.hr 
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.hzm):
             y += self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         y += self.hr
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### 3. Seite.
         x -= self.tr - self.material 
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.tzm):
             x -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.zahnbreite /2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         x -= self.tr - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### 4. Seite.
         y -= self.hr
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.hzm):
             y -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         y -= self.hr
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### Pfad schließen
         self.pfad_ende()
         self.svg.close()
@@ -216,85 +209,108 @@ class BOX:
     def deckel_erstellen(self):
         ###Erstellt einen Deckel und fügt ihn der Datei hinzu.###
         
-        x = self.breite + 5 + self.tiefe + 5 + self.material
-        y = self.material
         ###Öffnen der Datei.###
         self.svg = open(self.name, "a")
-        self.pfad_anfang()
-        self.svg.write(" d=\"M " + str(x) + "," + str(y) + " ")
+        self.pfad_anfang()       
+        ###Startpunkt wird gesetzt. 
+        x = self.breite + 5 + self.tiefe + 5 + self.material
+        y = self.material
+        self.schreiben_x_y(x, y)
         #### 1. Seite.
         x = x + self.tr - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")    
+        self.schreiben_x_y(x, y)    
         for item in range(self.tzm):
             x += (self.zahnbreite / 2)
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += (self.zahnbreite / 2)
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         x = x + self.tr - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")    
+        self.schreiben_x_y(x, y)    
         ### 2. Seite.
         y += self.br - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.bzm):
             y += self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         y += self.br - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### 3. Seite.
         x -= self.tr - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.tzm):
             x -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.zahnbreite /2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         x -= self.tr - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### 4. Seite.
         y -= self.br - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         for item in range(self.bzm):
             y -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x -= self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.zahnbreite
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             x += self.material
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
             y -= self.zahnbreite / 2
-            self.svg.write(str(x) + "," + str(y) + " ")
+            self.schreiben_x_y(x, y)
         y -= self.br - self.material
-        self.svg.write(str(x) + "," + str(y) + " ")
+        self.schreiben_x_y(x, y)
         ### Pfad schließen
         self.pfad_ende()
+        self.svg.close()
+
+    def schreiben_svg_einleitung(self):
+            ###Erzeugt eine neue Datei und schreibt die Dokumenteneinstellungen.###
+            
+            self.svg = open(self.name, "w")
+            self.svg.write(self.dokumenten_anfang + "\n")
+            self.svg.write(self.dokumenten_breite + "\n")
+            self.svg.write(self.dokumenten_hoehe + "\n")
+            self.svg.write(self.dokumenten_viewbox + "\n")
+            self.svg.close()
+
+    def gruppe_anfang(self):
+        ###Erstellt den Anfang einer Gruppe.###
+        
+        self.svg = open(self.name, "a")
+        self.svg.write("<g \n\t id = \"Box\" >")
         self.svg.close()
 
     def pfad_anfang(self):
         ###Schreibt den Anfang eines Pfades mit allen seinen Eigenschaften###
         
         self.svg.write("<path\n\t style=\"fill:none;stroke:#000000;stroke-width:0.50px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1\"\n")
+        self.svg.write(" d=\"M ")
+   
+    def schreiben_x_y(self, x, y):
+        ###Schreibt die aktuellen Koordinaten in die SVG-Datei
         
+        self.svg.write(str(x) + "," + str(y) + " ")
          
     def pfad_ende(self):
         ###Schreibt das Ende des Pfades.###
@@ -302,30 +318,14 @@ class BOX:
         pfad_id = "pfad_" + str(self.pfad_nr)
         self.svg.write("\"" + "\n\tid=\"" + pfad_id  + "\" \n\tinkscape:connector-curvature=\"0\"\n />\n" + "\n")
         self.pfad_nr += 1
-        
-    def schreiben_ende(self):
-        ###Schreibt das Ende der Datei.###
-        
-       self.svg = open(self.name, "a")
-       self.svg.write(self.dokumenten_ende)
-       self.svg.close()
        
-    def rand_erstellen(self):
-        ###Erstellt die Umrandung des Puzzles.###
+    def gruppe_ende(self):
+        ###Erstellt das Ende einer Gruppe.###
         
         self.svg = open(self.name, "a")
-        self.svg.write("<rect" + "\n"\
-                        + "style=\"fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linejoin:round;stroke-miterlimit:4;"\
-                        + "stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1\"" + "\n"\
-                        + "id=\"Umrandung\"" + "\n"\
-                        + "width=\"" + str(self.breite) + "\"" + "\n"\
-                        + "height=\"" + str(self.hoehe) + "\"" + "\n"\
-                        + "x=\"0\"" + "\n"\
-                        + "y=\"0\"" + "\n"\
-                        + "rx=\"5\"" + "\n"\
-                        + "ry=\"5\" />" + "\n")
+        self.svg.write("\n</g>")
         self.svg.close()
-
+      
     def branding_erstellen(self):
             ###Erstellt das Branding auf der Box.###
             
@@ -368,21 +368,13 @@ class BOX:
                             + ">Material: " + str(self.material) + " mm</text>" + "\n")
             self.svg.close()
 
-
-    def gruppe_anfang(self):
-        ###Erstellt den Anfang einer Gruppe.###
+    def schreiben_svg_ende(self):
+        ###Schreibt das Ende der Datei.###
         
-        self.svg = open(self.name, "a")
-        self.svg.write("<g \n\t id = \"Box\" >")
-        self.svg.close()
-        
-    def gruppe_ende(self):
-        ###Erstellt das Ende einer Gruppe.###
-        
-        self.svg = open(self.name, "a")
-        self.svg.write("\n</g>")
-        self.svg.close()
-        
+       self.svg = open(self.name, "a")
+       self.svg.write(self.dokumenten_ende)
+       self.svg.close()
+              
     def anzeigen(self):
         ###Öffnet über das Betriebssystem den hinterlegeten SVG-Viewer.###
 
@@ -416,11 +408,11 @@ class FENSTER:
         self.input_tiefe = Entry(self.anzeige, width = 3, bg = "silver", fg = "green")
         self.input_material = Entry(self.anzeige, width = 3, bg = "silver", fg = "green")
         self.input_zahnbreite = Entry(self.anzeige, width = 3, bg = "silver", fg = "green")
-        self.input_breite.insert(0, 100)
-        self.input_hoehe.insert(0, 200)        
-        self.input_tiefe.insert(0, 300)
+        self.input_breite.insert(0, 30) #Default Werte
+        self.input_hoehe.insert(0, 50)  #Default Werte      
+        self.input_tiefe.insert(0, 80) #Default Werte
         self.input_material.insert(0, 3.6)        
-        self.input_zahnbreite.insert(0, 15)
+        self.input_zahnbreite.insert(0, 7)
         self.input_breite.place(x = 160, y = 60)
         self.input_hoehe.place(x = 160, y = 80)
         self.input_tiefe.place(x = 160, y = 100)  
@@ -445,7 +437,7 @@ class FENSTER:
 def box_erstellen():
     ###.Erstellt die Box und speichert sie ab.###
     box = BOX(int(fenster.input_breite.get()),int(fenster.input_hoehe.get()),int(fenster.input_tiefe.get()),float(fenster.input_material.get()), int(fenster.input_zahnbreite.get()))
-    box.schreiben_einleitung()
+    box.schreiben_svg_einleitung()
     box.gruppe_anfang()
     box.front_erstellen()
     box.seite_erstellen()
@@ -453,7 +445,7 @@ def box_erstellen():
     box.gruppe_ende()
     box.branding_erstellen()
     box.beschriftung_erstellen()
-    box.schreiben_ende()
+    box.schreiben_svg_ende()
     box.anzeigen()
     fenster.bestätigung(box.breite, box.hoehe, box.tiefe)
                                                    
@@ -461,7 +453,7 @@ def box_erstellen():
 
 root = Tk()         #ein Fenster erstellen
 root.geometry("300x400")          #Größe zuordnen
-root.title("           Box Generator by mini revollo            ")
+root.title("   Box Generator by mini revollo    ")
  #Fenster mit einem Titel versehen 
    
 ###Hier läuft das Programm ab.###    
